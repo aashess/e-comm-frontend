@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_BASE_URL;
 
 function Login() {
   const navigate = useNavigate();

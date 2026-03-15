@@ -17,7 +17,7 @@ function Dashboard() {
       try {
         setLoading(true)
         setError(null)
-        const response = await axios.get('http://localhost:3000/api/product/all-products')
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/product/all-products`)
         const data = response.data?.data ?? response.data
         const list = Array.isArray(data) ? data : (data?.products ?? [])
         if (!cancelled) setProducts(list)

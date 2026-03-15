@@ -3,7 +3,7 @@ import { useState } from "react";
 
 // Point this to your backend base URL.
 // You can also set VITE_API_URL in a .env file instead.
-const API_BASE_URL = "http://localhost:3000/";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ function SignIn() {
       // Example backend route: GET `${API_BASE_URL}/auth/google`
 
       const response = await axios.get(
-        "http://localhost:3000/auth/google/login"
+        `${API_BASE_URL}auth/google/login`
       );
 
       console.log(response.data);

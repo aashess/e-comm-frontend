@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, {useEffect, useState } from "react";
 
-const API_BASE = "http://localhost:3000/api/product/create-product";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function CreateProductModal({ isOpen, onClose, onCreate }) {
   const [name, setName] = useState("");
@@ -19,7 +19,7 @@ function CreateProductModal({ isOpen, onClose, onCreate }) {
     const fetchSubCategories = async () => {
       try {
         const res = await axios.get(
-          'http://localhost:3000/api/product/all-subcategories',
+          `${API_BASE}api/product/all-subcategories`,
           { withCredentials: true }
         );
         setSubCategories(res.data.data);
@@ -58,7 +58,7 @@ const handleSubCategoriesChange = (e) => {
       return;
     }
 
-    const response = axios.post('http://localhost:3000/api/product/create-product', 
+    const response = axios.post(`${API_BASE}api/product/create-product`, 
         {
             name: payload.name,
             description: payload.description,
