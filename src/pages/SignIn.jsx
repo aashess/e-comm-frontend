@@ -1,49 +1,43 @@
-import axios from 'axios'
-import { useState } from 'react'
+import axios from "axios";
+import { useState } from "react";
 
 // Point this to your backend base URL.
 // You can also set VITE_API_URL in a .env file instead.
-const API_BASE_URL = 'http://localhost:3000/'
+const API_BASE_URL = "http://localhost:3000/";
 
 function SignIn() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleGoogleSignIn = async () => {
     try {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       // This expects your backend to return: { url: "https://accounts.google.com/..." }
       // Example backend route: GET `${API_BASE_URL}/auth/google`
-      
-      const response = await axios.get('http://localhost:3000/auth/google/login')
-      // , {
-      //   method: 'GET',
-      //   credentials: 'include',
-      // })
 
-      // console.log(response.);
-      // if (!response.ok) {
-      //   throw new Error('Failed to start Google sign in')
-      // }
+      const response = await axios.get(
+        "http://localhost:3000/auth/google/login"
+      );
 
-      
       console.log(response.data);
-      
-      
 
-      // if (!data?.url) {
-      //   throw new Error('No redirect URL returned from backend')
-      // }
+      if (!response.data) {
+        throw new Error("No redirect URL returned from backend");
+      }
+      // this will break when backend returns object.. 
+      globalThis.location.href = response.data; 
 
-      globalThis.location.href = response.data
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.')
+      setError(err.message || "Something went wrong. Please try again.");
+      
+      
+      
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
@@ -100,7 +94,7 @@ function SignIn() {
             <div className="space-y-4">
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
                 Run your store,
-                <br className="hidden sm:block" /> not your{' '}
+                <br className="hidden sm:block" /> not your{" "}
                 <span className="bg-linear-to-r from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
                   infrastructure
                 </span>
@@ -118,7 +112,9 @@ function SignIn() {
                 <p className="font-medium text-slate-200">
                   Designed for developers & operators
                 </p>
-                <p>Obsessed with fast dashboards, clean APIs, and clear data.</p>
+                <p>
+                  Obsessed with fast dashboards, clean APIs, and clear data.
+                </p>
               </div>
               <div className="flex items-center gap-3 text-[11px] text-slate-500">
                 <div className="flex -space-x-2">
@@ -184,7 +180,9 @@ function SignIn() {
                   </span>
 
                   <span>
-                    {isLoading ? 'Redirecting to Google…' : 'Sign in with Google'}
+                    {isLoading
+                      ? "Redirecting to Google…"
+                      : "Sign in with Google"}
                   </span>
                 </span>
               </button>
@@ -204,8 +202,8 @@ function SignIn() {
                 Why teams pick E‑Comm Studio
               </p>
               <p className="text-sm text-slate-400 md:text-base">
-                Opinionated defaults for product catalogs, orders, and customers,
-                with a clean API layer your backend can grow on.
+                Opinionated defaults for product catalogs, orders, and
+                customers, with a clean API layer your backend can grow on.
               </p>
             </div>
 
@@ -241,7 +239,9 @@ function SignIn() {
               </p>
             </div>
             <div className="space-y-2 rounded-2xl border border-slate-800/80 bg-slate-950/80 p-4">
-              <p className="text-xs font-medium text-violet-400">Secure access</p>
+              <p className="text-xs font-medium text-violet-400">
+                Secure access
+              </p>
               <p className="text-slate-200">
                 Google sign in for admins, with your backend in full control of
                 roles and permissions.
@@ -260,8 +260,7 @@ function SignIn() {
         </footer>
       </div>
     </div>
-  )
+  );
 }
 
-export default SignIn
-
+export default SignIn;

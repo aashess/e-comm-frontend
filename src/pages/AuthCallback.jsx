@@ -12,8 +12,9 @@ function AuthCallback() {
     //
     // For now, we just simulate a quick redirect back home.
     const timer = setTimeout(() => {
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     }, 1500)
+
 
     return () => clearTimeout(timer)
   }, [navigate])
