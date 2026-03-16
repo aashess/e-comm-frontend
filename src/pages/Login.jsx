@@ -8,6 +8,7 @@ function Login() {
   const [mode, setMode] = useState("signin"); // 'signin' | 'register'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   const handleGoogleSignIn = async () => {
     try {
@@ -263,7 +264,7 @@ function Login() {
         <p className="mt-4 text-center text-xs text-zinc-600">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="hover:text-zinc-400"
           >
             ← Back to home
