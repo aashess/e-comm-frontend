@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CreateProductModal from "../components/createProduct.jsx";
+import CreateProductModal from "../components/CreateProduct.jsx";
 const API_BASE = import.meta.env.VITE_API_URL;
 
 function Dashboard() {
@@ -10,6 +10,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
+  const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
     let cancelled = false;
@@ -142,6 +143,7 @@ function Dashboard() {
               {products.length} {products.length === 1 ? "product" : "products"}
             </h1>
           </div>
+          
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowCreateModal(true)}
@@ -150,33 +152,66 @@ function Dashboard() {
               <span className="text-base leading-none">＋</span>
               <span>Add product</span>
             </button>
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
-                <svg
-                  className="w-4 h-4 text-violet-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+
+            {loggedIn ? 
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4 text-violet-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </div>
+                <span className="text-sm text-zinc-300 font-medium">
+                  <button onClick={() => navigate('/profile')}>
+                    Profile
+                  </button>
+                </span>
               </div>
-              <span className="text-sm text-zinc-300 font-medium">Guest</span>
-            </div>
-            <button
-              onClick={() => navigate("/login")}
-              className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:border-violet-500/30 transition-all duration-200 text-sm font-medium"
-            >
-              Login
-            </button>
+             : 
+              <>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
+                    <svg
+                      className="w-4 h-4 text-violet-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <span className="text-sm text-zinc-300 font-medium">Guest</span>
+                </div>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:border-violet-500/30 transition-all duration-200 text-sm font-medium"
+                >
+                  Login
+                </button>
+              </>
+            }
           </div>
         </div>
+    
       </header>
+
+ 
+
+
 
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
