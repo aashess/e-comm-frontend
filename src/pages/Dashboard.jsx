@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CreateProductModal from "../components/CreateProduct.jsx";
-const API_BASE = import.meta.env.VITE_API_URL;
+import { getAllProducts } from "../api";
 
 function Dashboard() {
   const [products, setProducts] = useState([]);
@@ -19,10 +19,8 @@ function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(
-          `${API_BASE}/api/product/all-products`,
-        );
-        const data = response.data?.data ?? response.data;
+        const response = await getAllProducts();
+        const data = response?.data ?? response;
         const list = Array.isArray(data) ? data : (data?.products ?? []);
         if (!cancelled) setProducts(list);
       } catch (err) {

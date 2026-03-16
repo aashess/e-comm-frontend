@@ -15,3 +15,6 @@
 - profile_picture 
 - address
 - cart
+
+---IMPLEMENTED---
+To the following, that can be done. Where as being one of the way of being in this journey. 

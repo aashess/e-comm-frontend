@@ -1,8 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE = import.meta.env.VITE_API_URL;
+import { googleLogin, login, register } from "../api";
 
 function Login() {
   const navigate = useNavigate();
@@ -10,15 +9,13 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Sign in with Google
-  const [googleLoading, setGoogleLoading] = useState(false);
   const handleGoogleSignIn = async () => {
     try {
       setGoogleLoading(true);
       setError(null);
-      const response = await axios.get(`${API_BASE}/auth/google/login`);
-      if (!response.data) throw new Error("No redirect URL from server");
-      globalThis.location.href = response.data;
+      const data = await googleLogin();
+      if (!data) throw new Error("No redirect URL from server");
+      globalThis.location.href = data;
     } catch (err) {
       setError(err.message || "Google sign-in failed. Try again.");
     } finally {
@@ -45,11 +42,7 @@ function Login() {
       setLoading(true);
       if (mode === "signin") {
         // POST your backend sign-in route, e.g. POST /auth/login
-        const { data } = await axios.post(
-          `${API_BASE}/api/user/login`,
-          { email: email.trim(), password },
-          { withCredentials: "include" },
-        );
+        const data = await login(email.trim(), password);
         // Store token if returned, then redirect
         console.log(data.token);
 
@@ -59,12 +52,7 @@ function Login() {
         navigate("/dashboard", { replace: true });
       } else {
         // POST your backend register route, e.g. POST /auth/register
-        await axios.post(`${API_BASE}/api/user/register`, {
-          name: name.trim() || undefined,
-          email: email.trim(),
-          password,
-          role
-        });
+        await register(name.trim() || undefined, email.trim(), password, role);
         setMode("signin");
         setError(null);
         setPassword("");

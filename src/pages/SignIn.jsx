@@ -1,9 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-
-// Point this to your backend base URL.
-// You can also set VITE_API_URL in a .env file instead.
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { googleLogin } from "../api";
 
 function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,17 +14,15 @@ function SignIn() {
       // This expects your backend to return: { url: "https://accounts.google.com/..." }
       // Example backend route: GET `${API_BASE_URL}/auth/google`
 
-      const response = await axios.get(
-        `${API_BASE_URL}/auth/google/login`
-      );
+      const data = await googleLogin();
 
-      console.log(response.data);
+      console.log(data);
 
-      if (!response.data) {
+      if (!data) {
         throw new Error("No redirect URL returned from backend");
       }
       // this will break when backend returns object.. 
-      globalThis.location.href = response.data; 
+      globalThis.location.href = data; 
 
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");

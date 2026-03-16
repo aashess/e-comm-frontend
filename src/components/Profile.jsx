@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { API_BASE_URL } from '../config'
+import { getUser } from '../api'
 
 const user = {
     name: "Aashish Jha",
@@ -22,24 +22,21 @@ const Profile = () => {
     const [cart, setCart] = useState([])
     
     useEffect(() => {
-        
-        try {
-            const response = axios.get(`${API_BASE_URL}/auth/get-user`, {
-                withCredentials: true
-            })
-
-            setName(response.data.name)
-            setEmail(response.data.email)
-            setRole(response.data.role)
-            setCreatedAt(response.data.createdAt)
-            setProfilePicture(response.data.profilePicture)
-            setAddress(response.data.name)
-
-            
+        const fetchUser = async () => {
+            try {
+                const response = await getUser();
+                setName(response.name);
+                setEmail(response.email);
+                setRole(response.role);
+                setCreatedAt(response.createdAt);
+                setProfilePicture(response.profilePicture);
+                setAddress(response.address);
             } catch (error) {
                 console.error('Error while fetching User Details.', error);
             }
+        };
 
+        fetchUser();
     },[])
 
 

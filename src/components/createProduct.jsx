@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, {useEffect, useState } from "react";
+import { getAllSubcategories, createProduct } from "../api";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -18,11 +19,8 @@ function CreateProductModal({ isOpen, onClose, onCreate }) {
   useEffect(() => {
     const fetchSubCategories = async () => {
       try {
-        const res = await axios.get(
-          `${API_BASE}/api/product/all-subcategories`,
-          { withCredentials: true }
-        );
-        setSubCategories(res.data.data);
+        const response = await getAllSubcategories();
+        setSubCategories(response.data);
       } catch (err) {
         console.error(err);
       }
@@ -41,48 +39,39 @@ const handleSubCategoriesChange = (e) => {
     
   }
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
   
     const payload = {
       name: name.trim(),
       description: description.trim() || undefined,
-      stockQuantity: stockQuantity ? Number(stockQuantity) : 0,
+      stock: stockQuantity ? Number(stockQuantity) : 0,
       price: price ? Number(price) : 0,
-      categoriesId: categoriesId.trim() || undefined,
+      subcategoryId: selectSubCategories
     };
 
     if (!payload.name) {
       return;
     }
+    
+    try {
+      const response = await createProduct(payload);
+      console.log(response);
+      
+      if (typeof onCreate === "function") {
+        onCreate(payload);
+      }
 
-    const response = axios.post(`${API_BASE}api/product/create-product`, 
-        {
-            name: payload.name,
-            description: payload.description,
-            stock: payload.stockQuantity,
-            price: payload.price,
-            subcategoryId: selectSubCategories
-        },
-        {
-            withCredentials: true
-        }
-    ).then(res => console.log(res.data))
-    .catch(err => console.error(err)
-    )
-     
-
-    if (typeof onCreate === "function") {
-      onCreate(payload);
+      setName("");
+      setDescription("");
+      setStockQuantity("");
+      setPrice("");
+      setCategoriesId("");
+      if (typeof onClose === "function") onClose();
+    } catch (error) {
+      console.error('Error creating product:', error);
     }
-
-    setName("");
-    setDescription("");
-    setStockQuantity("");
-    setPrice("");
-    setCategoriesId("");
-    if (typeof onClose === "function") onClose();
   };
 
   return (
