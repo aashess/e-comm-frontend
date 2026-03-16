@@ -1,44 +1,46 @@
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import CreateProductModal from '../components/createProduct.jsx'
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CreateProductModal from "../components/createProduct.jsx";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 function Dashboard() {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const navigate = useNavigate()
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
 
     async function fetchProducts() {
       try {
-        setLoading(true)
-        setError(null)
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}api/product/all-products`)
-        const data = response.data?.data ?? response.data
-        const list = Array.isArray(data) ? data : (data?.products ?? [])
-        if (!cancelled) setProducts(list)
+        setLoading(true);
+        setError(null);
+        const response = await axios.get(
+          `${API_BASE}/api/product/all-products`,
+        );
+        const data = response.data?.data ?? response.data;
+        const list = Array.isArray(data) ? data : (data?.products ?? []);
+        if (!cancelled) setProducts(list);
       } catch (err) {
-        if (!cancelled) setError(err.message || 'Failed to load products')
+        if (!cancelled) setError(err.message || "Failed to load products");
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
     }
 
-    fetchProducts()
-    return () => { cancelled = true }
-  }, [])
+    fetchProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCreateProduct = (payload) => {
-    const syntheticId = `local-${Date.now()}`
-    setProducts((prev) => [
-      { id: syntheticId, ...payload },
-      ...prev,
-    ])
-  }
+    const syntheticId = `local-${Date.now()}`;
+    setProducts((prev) => [{ id: syntheticId, ...payload }, ...prev]);
+  };
 
   if (loading) {
     return (
@@ -47,12 +49,16 @@ function Dashboard() {
         <header className="border-b border-zinc-800/80 bg-zinc-900/50 backdrop-blur-xl sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">Catalog</span>
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mt-0.5">Products</h1>
+              <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+                Catalog
+              </span>
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mt-0.5">
+                Products
+              </h1>
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:border-violet-500/30 transition-all duration-200 text-sm font-medium"
               >
                 Login
@@ -79,7 +85,7 @@ function Dashboard() {
           </div>
         </main>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -90,12 +96,16 @@ function Dashboard() {
           <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-400 text-2xl font-medium">
             !
           </div>
-          <h2 className="mt-5 text-lg font-semibold text-zinc-100">Couldn’t load products</h2>
+          <h2 className="mt-5 text-lg font-semibold text-zinc-100">
+            Couldn’t load products
+          </h2>
           <p className="mt-2 text-zinc-400 text-sm">{error}</p>
-          <p className="mt-5 text-zinc-500 text-xs">Ensure the server is running at localhost:3000</p>
+          <p className="mt-5 text-zinc-500 text-xs">
+            Ensure the server is running at localhost:3000
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!products.length) {
@@ -106,11 +116,15 @@ function Dashboard() {
           <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mx-auto text-zinc-500 text-2xl font-light">
             ∅
           </div>
-          <h2 className="mt-5 text-lg font-semibold text-zinc-100">No products yet</h2>
-          <p className="mt-2 text-zinc-400 text-sm">Products will show here once added.</p>
+          <h2 className="mt-5 text-lg font-semibold text-zinc-100">
+            No products yet
+          </h2>
+          <p className="mt-2 text-zinc-400 text-sm">
+            Products will show here once added.
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -121,9 +135,11 @@ function Dashboard() {
       <header className="border-b border-zinc-800/80 bg-zinc-900/50 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">Catalog</span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+              Catalog
+            </span>
             <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mt-0.5">
-              {products.length} {products.length === 1 ? 'product' : 'products'}
+              {products.length} {products.length === 1 ? "product" : "products"}
             </h1>
           </div>
           <div className="flex items-center gap-3">
@@ -136,14 +152,24 @@ function Dashboard() {
             </button>
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
-                <svg className="w-4 h-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg
+                  className="w-4 h-4 text-violet-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
                 </svg>
               </div>
               <span className="text-sm text-zinc-300 font-medium">Guest</span>
             </div>
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:border-violet-500/30 transition-all duration-200 text-sm font-medium"
             >
               Login
@@ -163,7 +189,7 @@ function Dashboard() {
                 {product.image ? (
                   <img
                     src={product.image}
-                    alt={product.name ?? 'Product'}
+                    alt={product.name ?? "Product"}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
@@ -174,7 +200,7 @@ function Dashboard() {
               </div>
               <div className="p-4 flex flex-col flex-1">
                 <h2 className="font-semibold text-zinc-100 text-[15px] leading-snug line-clamp-2">
-                  {product.name ?? 'Unnamed product'}
+                  {product.name ?? "Unnamed product"}
                 </h2>
                 {product.description && (
                   <p className="mt-2 text-zinc-500 text-sm line-clamp-2 flex-1">
@@ -184,7 +210,7 @@ function Dashboard() {
                 <div className="mt-4 pt-3 border-t border-zinc-800/80">
                   {product.price != null && (
                     <p className="text-base font-semibold text-violet-400">
-                      ₹{Number(product.price).toLocaleString('en-IN')}
+                      ₹{Number(product.price).toLocaleString("en-IN")}
                     </p>
                   )}
                 </div>
@@ -200,7 +226,7 @@ function Dashboard() {
         onCreate={handleCreateProduct}
       />
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

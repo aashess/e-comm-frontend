@@ -19,7 +19,7 @@ function CreateProductModal({ isOpen, onClose, onCreate }) {
     const fetchSubCategories = async () => {
       try {
         const res = await axios.get(
-          `${API_BASE}api/product/all-subcategories`,
+          `${API_BASE}/api/product/all-subcategories`,
           { withCredentials: true }
         );
         setSubCategories(res.data.data);
@@ -33,8 +33,7 @@ function CreateProductModal({ isOpen, onClose, onCreate }) {
     // console.log(subCategories);
 
 
-    
-if (!isOpen) return null;  
+if (!isOpen) return null;
 
 const handleSubCategoriesChange = (e) => {
     setSelectSubCategories(e.target.value)

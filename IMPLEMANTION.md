@@ -4,4 +4,14 @@
 2) / home page route fix 
             - must show sign-in button 
             - email.crediatinls 
-            
+        
+
+-----PROFILE----
+
+- name
+- email
+- role 
+- created at 
+- profile_picture 
+- address
+- cart

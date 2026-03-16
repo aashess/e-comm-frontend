@@ -18,7 +18,7 @@ function SignIn() {
       // Example backend route: GET `${API_BASE_URL}/auth/google`
 
       const response = await axios.get(
-        `${API_BASE_URL}auth/google/login`
+        `${API_BASE_URL}/auth/google/login`
       );
 
       console.log(response.data);
