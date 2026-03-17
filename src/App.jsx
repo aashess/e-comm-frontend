@@ -1,10 +1,13 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import SignIn from './pages/SignIn.jsx'
-import AuthCallback from './pages/AuthCallback.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import Login from './pages/Login.jsx'
-import CreateProductModal from './components/CreateProduct.jsx'
-import Profile from './components/Profile.jsx'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SignIn from "./pages/SignIn.jsx";
+import AuthCallback from "./pages/AuthCallback.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Login from "./pages/Login.jsx";
+import CreateProductModal from "./components/CreateProduct.jsx";
+import Profile from "./components/Profile.jsx";
+import AdminPage from "./components/Admin.jsx";
+import ProductDetail from "./pages/ProductDetail.jsx";
+import Cart from "./pages/Cart.jsx";
 
 function App() {
   return (
@@ -19,7 +22,7 @@ function App() {
         
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
