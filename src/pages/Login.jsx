@@ -1,14 +1,16 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "motion/react";
 import { googleLogin, login, register } from "../api";
+
+const ease = [0.22, 1, 0.36, 1];
 
 function Login() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("signin"); // 'signin' | 'register'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [googleLoading, setGoogleLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -24,7 +26,6 @@ function Login() {
     }
   };
 
-  // Email/password form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -34,7 +35,6 @@ function Login() {
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    
     if (!email.trim() || !password) {
       setError("Email and password are required");
       return;
@@ -42,26 +42,17 @@ function Login() {
     try {
       setLoading(true);
       if (mode === "signin") {
-        // POST your backend sign-in route, e.g. POST /auth/login
         const data = await login(email.trim(), password);
-        // Store token if returned, then redirect
-        console.log(data.token);
-
         if (data?.token) localStorage.setItem("token", data.token);
-        console.log(localStorage.token);
-
         navigate("/dashboard", { replace: true });
       } else {
-        // POST your backend register route, e.g. POST /auth/register
         await register(name.trim() || undefined, email.trim(), password, role);
         setMode("signin");
         setError(null);
         setPassword("");
-        setRole("")
+        setRole("");
         setEmail("");
         setName("");
-        // Optional: auto sign-in after register
-        // navigate('/dashboard', { replace: true })
       }
     } catch (err) {
       setError(
@@ -76,60 +67,78 @@ function Login() {
     setMode((m) => (m === "signin" ? "register" : "signin"));
     setError(null);
     setPassword("");
-    setRole("")
+    setRole("");
   };
 
   let submitButtonLabel = "Sign in";
   if (loading) submitButtonLabel = "Please wait…";
   else if (mode === "register") submitButtonLabel = "Create account";
 
-  const signInPrompt = (
-    <>
-      Don’t have an account?{" "}
-      <button
-        type="button"
-        onClick={switchMode}
-        className="font-medium text-violet-400 hover:text-violet-300"
-      >
-        Create new account
-      </button>
-    </>
-  );
-  const registerPrompt = (
-    <>
-      Already have an account?{" "}
-      <button
-        type="button"
-        onClick={switchMode}
-        className="font-medium text-violet-400 hover:text-violet-300"
-      >
-        Sign in
-      </button>
-    </>
-  );
+  // Stagger children for form fields
+  const formContainerVariants = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.08, delayChildren: 0.2 },
+    },
+  };
+
+  const fieldVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease } },
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-4">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.12),transparent)]" />
-      <div className="relative w-full max-w-md">
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 backdrop-blur-sm p-6 sm:p-8 shadow-xl">
-          <div className="text-center mb-6">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
-              {mode === "signin" ? "Sign in" : "Create account"}
-            </h1>
-            <p className="mt-1 text-sm text-zinc-500">
-              {mode === "signin"
-                ? "Use Google or your email to continue"
-                : "Register with your email"}
-            </p>
-          </div>
+      {/* Animated gradient background */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.12),transparent)]"
+        animate={{ opacity: [0.8, 1, 0.8] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-          {/* Sign in with Google */}
-          <button
+      <motion.div
+        className="relative w-full max-w-md"
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
+          className="rounded-2xl border border-zinc-800/80 bg-zinc-900/60 backdrop-blur-sm p-6 sm:p-8 shadow-xl"
+          whileHover={{
+            boxShadow:
+              "0 25px 60px -12px rgba(139,92,246,0.08), 0 0 0 1px rgba(139,92,246,0.12)",
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Header with AnimatePresence for mode switch */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mode}
+              className="text-center mb-6"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.25, ease }}
+            >
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
+                {mode === "signin" ? "Sign in" : "Create account"}
+              </h1>
+              <p className="mt-1 text-sm text-zinc-500">
+                {mode === "signin"
+                  ? "Use Google or your email to continue"
+                  : "Register with your email"}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Google button */}
+          <motion.button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
             className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-3 text-sm font-medium text-zinc-100 hover:bg-zinc-800/80 hover:border-zinc-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <svg
               className="h-5 w-5 shrink-0"
@@ -154,7 +163,7 @@ function Login() {
               />
             </svg>
             {googleLoading ? "Redirecting…" : "Sign in with Google"}
-          </button>
+          </motion.button>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
@@ -167,110 +176,166 @@ function Login() {
             </div>
           </div>
 
-          {/* Email / password form */}
-          <form onSubmit={handleEmailSubmit} className="space-y-4">
-            {mode === "register" && (
-              <div>
+          {/* Email / password form with stagger animation */}
+          <AnimatePresence mode="wait">
+            <motion.form
+              key={mode}
+              onSubmit={handleEmailSubmit}
+              className="space-y-4"
+              variants={formContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {mode === "register" && (
+                <motion.div variants={fieldVariants}>
+                  <label
+                    htmlFor="name"
+                    className="block text-xs font-medium text-zinc-400 mb-1.5"
+                  >
+                    Name (optional)
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                  />
+                </motion.div>
+              )}
+              <motion.div variants={fieldVariants}>
                 <label
-                  htmlFor="name"
+                  htmlFor="email"
                   className="block text-xs font-medium text-zinc-400 mb-1.5"
                 >
-                  Name (optional)
+                  Email
                 </label>
                 <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
-                />
-              </div>
-            )}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-xs font-medium text-zinc-400 mb-1.5"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                required
-                className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-xs font-medium text-zinc-400 mb-1.5"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete={
-                  mode === "signin" ? "current-password" : "new-password"
-                }
-                required
-                className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
-              />
-            </div>
-            {mode === "register" && (
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-xs font-medium text-zinc-400 mb-1.5"
-                >
-                  Role
-                </label>
-                <input
-                  id="role"
-                  type="text"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
                   required
                   className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
                 />
-              </div>
-            )}
-            {error && (
-              <p className="text-sm text-red-400 font-medium">{error}</p>
-            )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-violet-500 hover:bg-violet-600 text-white py-2.5 text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitButtonLabel}
-            </button>
-          </form>
+              </motion.div>
+              <motion.div variants={fieldVariants}>
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-medium text-zinc-400 mb-1.5"
+                >
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete={
+                    mode === "signin" ? "current-password" : "new-password"
+                  }
+                  required
+                  className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                />
+              </motion.div>
+              {mode === "register" && (
+                <motion.div variants={fieldVariants}>
+                  <label
+                    htmlFor="role"
+                    className="block text-xs font-medium text-zinc-400 mb-1.5"
+                  >
+                    Role
+                  </label>
+                  <input
+                    id="role"
+                    type="text"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    required
+                    className="w-full rounded-xl border border-zinc-700/80 bg-zinc-800/50 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                  />
+                </motion.div>
+              )}
 
-          <p className="mt-5 text-center text-sm text-zinc-500">
-            {mode === "signin" ? signInPrompt : registerPrompt}
-          </p>
-        </div>
-        <p className="mt-4 text-center text-xs text-zinc-600">
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    className="text-sm text-red-400 font-medium"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {error}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
+              <motion.button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-violet-500 hover:bg-violet-600 text-white py-2.5 text-sm font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                variants={fieldVariants}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                {submitButtonLabel}
+              </motion.button>
+            </motion.form>
+          </AnimatePresence>
+
+          <motion.p
+            className="mt-5 text-center text-sm text-zinc-500"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+          >
+            {mode === "signin" ? (
+              <>
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={switchMode}
+                  className="font-medium text-violet-400 hover:text-violet-300"
+                >
+                  Create new account
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={switchMode}
+                  className="font-medium text-violet-400 hover:text-violet-300"
+                >
+                  Sign in
+                </button>
+              </>
+            )}
+          </motion.p>
+        </motion.div>
+        <motion.p
+          className="mt-4 text-center text-xs text-zinc-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.4 }}
+        >
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
-            className="hover:text-zinc-400"
+            className="hover:text-zinc-400 transition-colors"
           >
             ← Back to home
           </button>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }
