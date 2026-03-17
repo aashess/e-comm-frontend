@@ -15,7 +15,7 @@ function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path='/profile' element={<Profile/>}/>
-
+ 
         
       </Routes>
     </BrowserRouter>
