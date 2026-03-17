@@ -17,10 +17,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/product/:productId" element={<ProductDetail />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path='/profile' element={<Profile/>}/>
+ 
+        
       </Routes>
     </BrowserRouter>
   );
