@@ -13,6 +13,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/product/:productId" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/admin" element={<AdminPage />} />
+
         <Route path="/" element={<SignIn />} />
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
