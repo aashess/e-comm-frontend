@@ -20,7 +20,7 @@ export const login = async (email, password) => {
       { email: email.trim(), password },
       { withCredentials: true }
     );
-    return response.data;
+    return response;
   } catch (error) {
     throw error;
   }
@@ -44,7 +44,7 @@ export const register = async (name, email, password, role) => {
 // Get user details
 export const getUser = async () => {
   try {
-    const response = await axios.get(`${API_BASE}/auth/get-user`, {
+    const response = await axios.get(`${API_BASE}/api/user/get-profile/`, {
       withCredentials: true
     });
     return response.data;

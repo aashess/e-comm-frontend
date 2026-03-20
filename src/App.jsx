@@ -8,6 +8,7 @@ import Profile from "./components/Profile.jsx";
 import AdminPage from "./components/Admin.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 import Cart from "./pages/Cart.jsx";
+import Payment from "./pages/Payment.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path='/profile' element={<Profile/>}/>
+        <Route path='/payment' element={<Payment/>}/>
  
         
       </Routes>

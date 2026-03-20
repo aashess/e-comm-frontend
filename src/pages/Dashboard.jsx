@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import CreateProductModal from "../components/CreateProduct.jsx";
-import { getAllProducts } from "../api";
+import { getAllProducts, getUser } from "../api";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -16,8 +16,16 @@ function Dashboard() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setLoggedIn(!!token);
+    const loggedInOrNot = async () => {
+      try {
+        const response = await getUser();
+
+        setLoggedIn(true);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    loggedInOrNot();
   }, []);
 
   useEffect(() => {
@@ -26,7 +34,7 @@ function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        const response = await getAllProducts();
+        const response = await getAllProducts(); // api call for all product in dashboard.
         const data = response?.data ?? response;
         const list = Array.isArray(data) ? data : (data?.products ?? []);
         if (!cancelled) setProducts(list);
@@ -37,11 +45,13 @@ function Dashboard() {
       }
     }
     fetchProducts();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleBuyNow = () => console.log("Buy clicked ");
-  const handleAddToCart = () => console.log("Added to cart");
+  const handleBuyNow = () => console.log("Buy clicked "); // buy
+  const handleAddToCart = () => console.log("Added to cart"); // add to cart
   const handleCreateProduct = (payload) => {
     const syntheticId = `local-${Date.now()}`;
     setProducts((prev) => [{ id: syntheticId, ...payload }, ...prev]);
@@ -84,11 +94,20 @@ function Dashboard() {
         <header className="border-b border-zinc-800/80 bg-zinc-900/50 backdrop-blur-xl sticky top-0 z-10">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
             <div>
-              <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">Catalog</span>
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mt-0.5">Products</h1>
+              <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+                Catalog
+              </span>
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mt-0.5">
+                Products
+              </h1>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={() => navigate("/login")} className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:border-violet-500/30 transition-all duration-200 text-sm font-medium">Login</button>
+              <button
+                onClick={() => navigate("/login")}
+                className="px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:border-violet-500/30 transition-all duration-200 text-sm font-medium"
+              >
+                Login
+              </button>
             </div>
           </div>
         </header>
@@ -135,9 +154,13 @@ function Dashboard() {
           >
             !
           </motion.div>
-          <h2 className="mt-5 text-lg font-semibold text-zinc-100">Couldn't load products</h2>
+          <h2 className="mt-5 text-lg font-semibold text-zinc-100">
+            Couldn't load products
+          </h2>
           <p className="mt-2 text-zinc-400 text-sm">{error}</p>
-          <p className="mt-5 text-zinc-500 text-xs">Ensure the server is running at localhost:3000</p>
+          <p className="mt-5 text-zinc-500 text-xs">
+            Ensure the server is running at localhost:3000
+          </p>
         </motion.div>
       </div>
     );
@@ -160,8 +183,12 @@ function Dashboard() {
           >
             ∅
           </motion.div>
-          <h2 className="mt-5 text-lg font-semibold text-zinc-100">No products yet</h2>
-          <p className="mt-2 text-zinc-400 text-sm">Products will show here once added.</p>
+          <h2 className="mt-5 text-lg font-semibold text-zinc-100">
+            No products yet
+          </h2>
+          <p className="mt-2 text-zinc-400 text-sm">
+            Products will show here once added.
+          </p>
         </motion.div>
       </div>
     );
@@ -180,9 +207,12 @@ function Dashboard() {
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">Catalog</span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+              Catalog
+            </span>
             <h1 className="text-xl sm:text-2xl font-semibold tracking-tight mt-0.5">
-              {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}
+              {filteredProducts.length}{" "}
+              {filteredProducts.length === 1 ? "product" : "products"}
             </h1>
           </div>
 
@@ -206,17 +236,42 @@ function Dashboard() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
                   </svg>
                 </motion.button>
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
                   <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <svg
+                      className="w-4 h-4 text-violet-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
                     </svg>
                   </div>
-                  <button onClick={() => navigate("/profile")} className="text-sm text-zinc-300 font-medium hover:text-white transition-colors">Profile</button>
+                  <button
+                    onClick={() => navigate("/profile")}
+                    className="text-sm text-zinc-300 font-medium hover:text-white transition-colors"
+                  >
+                    Profile
+                  </button>
                 </div>
                 <motion.button
                   onClick={handleLogout}
@@ -236,17 +291,39 @@ function Dashboard() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
                   </svg>
                 </motion.button>
                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50 border border-zinc-700/50">
                   <div className="w-7 h-7 rounded-full bg-linear-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <svg
+                      className="w-4 h-4 text-violet-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
                     </svg>
                   </div>
-                  <span className="text-sm text-zinc-300 font-medium">Guest</span>
+                  <span className="text-sm text-zinc-300 font-medium">
+                    Guest
+                  </span>
                 </div>
                 <motion.button
                   onClick={() => navigate("/login")}
@@ -270,8 +347,18 @@ function Dashboard() {
         >
           <div className="max-w-6xl mx-auto">
             <div className="relative">
-              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-zinc-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               <input
                 type="text"
@@ -285,8 +372,16 @@ function Dashboard() {
                   onClick={() => setSearchTerm("")}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               )}
@@ -337,12 +432,15 @@ function Dashboard() {
             {filteredProducts.map((product) => (
               <motion.article
                 key={product.id ?? product._id ?? product.name}
-                onClick={() => navigate(`/product/${product.id ?? product._id}`)}
+                onClick={() =>
+                  navigate(`/product/${product.id ?? product._id}`)
+                }
                 className="group rounded-2xl bg-zinc-900/60 border border-zinc-800/80 overflow-hidden hover:border-zinc-700 transition-all duration-300 flex flex-col cursor-pointer"
                 variants={cardVariants}
                 whileHover={{
                   y: -6,
-                  boxShadow: "0 20px 40px -12px rgba(139,92,246,0.12), 0 0 0 1px rgba(139,92,246,0.1)",
+                  boxShadow:
+                    "0 20px 40px -12px rgba(139,92,246,0.12), 0 0 0 1px rgba(139,92,246,0.1)",
                   transition: { duration: 0.25, ease },
                 }}
                 whileTap={{ scale: 0.98 }}

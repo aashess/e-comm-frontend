@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
+import { getAllCartItems } from "../api";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -8,9 +9,20 @@ function Cart() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [totalPrice, setTotalPrice] = useState()
 
   useEffect(() => {
-    // TODO: Fetch cart items from API or localStorage
+
+    const fetchGetCart = async () => {
+      // TODO: Fetch cart items from API or localStorage
+      const data = await getAllCartItems();
+      console.log(data.data);
+      setTotalPrice(data.data.totalAmount)
+      setCartItems(data.data)
+      console.log(`CartItems: `,cartItems);
+      
+    }
+    fetchGetCart()
     setIsLoading(false);
   }, []);
 
@@ -22,7 +34,7 @@ function Cart() {
     navigate("/dashboard");
   };
 
-  const totalPrice = 0; // TODO: Calculate total from cart items
+
 
   // Item stagger variants
   const listVariants = {
@@ -219,6 +231,7 @@ function Cart() {
                 </div>
 
                 <motion.button
+                  onClick={() => navigate("/payment")}
                   className="w-full px-4 py-3 rounded-xl bg-violet-500 text-white hover:bg-violet-600 transition-colors font-medium shadow-sm shadow-violet-500/40 mb-3"
                   whileHover={{
                     scale: 1.03,

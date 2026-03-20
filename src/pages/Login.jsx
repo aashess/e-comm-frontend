@@ -43,7 +43,11 @@ function Login() {
       setLoading(true);
       if (mode === "signin") {
         const data = await login(email.trim(), password);
-        if (data?.token) localStorage.setItem("token", data.token);
+        // console.log(data);
+
+        if (data?.headers?.csrftoken) localStorage.setItem("csrfToken", data.headers.csrftoken);
+        // if (data.data?.token) localStorage.setItem("token",data.data.token)
+
         navigate("/dashboard", { replace: true });
       } else {
         await register(name.trim() || undefined, email.trim(), password, role);

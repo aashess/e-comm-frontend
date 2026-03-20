@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { getAllProducts } from "../api";
+import { addToCart, getAllProducts } from "../api";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -13,6 +13,7 @@ function ProductDetail() {
   const [product, setProduct] = useState(null); // State to hold the product data
   const [loading, setLoading] = useState(true); // State to manage loading status
   const [error, setError] = useState(null); // State to hold any error messages
+  const [quantity, setQuantity] = useState(1); // State to hold selected quantity
 
   useEffect(() => {
     let cancelled = false; // Flag to prevent state updates if component unmounts
@@ -40,7 +41,16 @@ function ProductDetail() {
     return () => { cancelled = true; }; // Cleanup function to cancel async operation
   }, [productId]);
 
-  const handleAddToCart = () => console.log("Added to cart:", product.id); // Placeholder for adding product to cart
+  const handleAddToCart = async () => {
+    try {
+      console.log(quantity);
+      
+      await addToCart(productId, quantity);
+      console.log("Added to cart:", product.id);
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    }
+  }; // Function to add product to cart with selected quantity
   const handleBuyNow = () => console.log("Buy now:", product.id); // Placeholder for buy now functionality
 
   // Animation variants for staggered product info sections
@@ -225,6 +235,21 @@ function ProductDetail() {
                       ? `${product.stock} available` // Show available stock
                       : "Out of stock"} {/* Show out of stock message */}
                   </p>
+                </motion.div>
+              )}
+
+              {product.stock > 0 && (
+                <motion.div className="mb-6" variants={infoItemVariants}>
+                  <p className="text-sm text-zinc-500 mb-2">Quantity</p>
+                  <select
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    className="bg-zinc-800 text-zinc-100 rounded-lg px-3 py-2 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  >
+                    {Array.from({ length: product.stock }, (_, i) => i + 1).map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))}
+                  </select>
                 </motion.div>
               )}
             </div>
