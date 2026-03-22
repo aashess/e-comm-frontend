@@ -9,18 +9,18 @@ function Cart() {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalPrice, setTotalPrice] = useState()
+  const [totalPrice, setTotalPrice] = useState();
 
   useEffect(() => {
 
     const fetchGetCart = async () => {
       // TODO: Fetch cart items from API or localStorage
       const data = await getAllCartItems();
-      console.log(data.data);
-      setTotalPrice(data.data.totalAmount)
-      setCartItems(data.data)
-      console.log(`CartItems: `,cartItems);
-      
+      console.log(data?.data?.data?.items);
+      const cartDetails = data?.data?.data?.items || [];
+      setTotalPrice(data.data.totalAmount);
+      setCartItems(cartDetails);
+      console.log(`CartItems: `, cartDetails);
     }
     fetchGetCart()
     setIsLoading(false);
@@ -170,7 +170,10 @@ function Cart() {
                       >
                         <div className="flex-1">
                           <p className="text-sm font-medium text-zinc-100">
-                            {item}
+                            {item?.name || item?.title || item?.productName || 'Unknown Item'}
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            ₹{item?.price || item?.amount || 'N/A'}
                           </p>
                         </div>
                         <motion.button
