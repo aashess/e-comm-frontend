@@ -77,3 +77,20 @@ export const getAllCartItems = async() => {
   }
 }
 
+export const removeFromCart = async(productdId) => {
+  try {
+    const response = await axios.post(`${API_BASE}/api/cart/remove-item`,
+      {productId:  productdId},
+      {
+        withCredentials: true,
+        headers: {
+          csrfToken: `${csrfToken}`
+        }
+      }
+    );
+    return response
+  } catch (error) {
+    console.error('Something went wrong from the server. ', error)
+  }
+}
+

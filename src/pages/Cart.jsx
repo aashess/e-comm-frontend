@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { getAllCartItems } from "../api";
+import { getAllCartItems, removeFromCart } from "../api";
+import PageTransition from "../components/PageTransition";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -10,24 +11,33 @@ function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [totalPrice, setTotalPrice] = useState();
-
+  
+  
+  
   useEffect(() => {
-
     const fetchGetCart = async () => {
+      setIsLoading(true)
       // TODO: Fetch cart items from API or localStorage
       const data = await getAllCartItems();
-      console.log(data?.data?.data?.items);
+      // console.log(data?.data?.data);
       const cartDetails = data?.data?.data?.items || [];
-      setTotalPrice(data.data.totalAmount);
+      setTotalPrice(data.data.data.totalAmount);
       setCartItems(cartDetails);
-      console.log(`CartItems: `, cartDetails);
+      console.log(`Cart Fetched`);
     }
     fetchGetCart()
     setIsLoading(false);
   }, []);
 
-  const handleRemoveItem = (item) => {
-    setCartItems((prev) => prev.filter((i) => i !== item));
+  const handleRemoveItem = async (item) => {
+      const response = await removeFromCart(item.productId)
+      if(response.status === 200) {
+        setCartItems((prev) => prev.filter((i) => i !== item));
+        console.log(`${item.name} removed successfully`);
+      }
+      else {
+        console.log('Failed to Remove Item.');
+      }
   };
 
   const handleContinueShopping = () => {
@@ -83,7 +93,7 @@ function Cart() {
 
       {/* Main Content */}
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {cartItems.length === 0 ? (
+        {isLoading ? <PageTransition/> : (cartItems.length === 0) ? (
           <motion.div
             className="flex items-center justify-center py-20"
             initial={{ opacity: 0, scale: 0.85 }}
@@ -170,10 +180,13 @@ function Cart() {
                       >
                         <div className="flex-1">
                           <p className="text-sm font-medium text-zinc-100">
-                            {item?.name || item?.title || item?.productName || 'Unknown Item'}
+                            {item?.product?.name || item?.title || item?.productName || 'Unknown Item'}
                           </p>
                           <p className="text-xs text-zinc-500">
-                            ₹{item?.price || item?.amount || 'N/A'}
+                            ₹{item?.product?.price || item?.amount || 'N/A'}
+                          </p>
+                          <p className="text-xs text-zinc-400">
+                            Quantity: {item?.quantity || 'N/A'}x
                           </p>
                         </div>
                         <motion.button
@@ -216,11 +229,11 @@ function Cart() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-zinc-400">Shipping</span>
-                    <span className="text-zinc-100">₹0</span>
+                    <span className="text-zinc-100">Free</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-zinc-400">Tax</span>
-                    <span className="text-zinc-100">₹0</span>
+                    <span className="text-zinc-100">Free</span>
                   </div>
                 </div>
 
@@ -234,7 +247,7 @@ function Cart() {
                 </div>
 
                 <motion.button
-                  onClick={() => navigate("/payment")}
+                  onClick={() => navigate("/payment", {state: {totalPrice}})}
                   className="w-full px-4 py-3 rounded-xl bg-violet-500 text-white hover:bg-violet-600 transition-colors font-medium shadow-sm shadow-violet-500/40 mb-3"
                   whileHover={{
                     scale: 1.03,

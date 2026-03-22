@@ -6,10 +6,13 @@ import { motion } from "motion/react";
 void motion; // keep lint happy (motion is used via namespace properties like motion.header)
 import { getAllCartItems } from "../api";
 import { payment } from "../api/payment";
+import { useLocation } from "react-router-dom";
+
 
 const ease = [0.22, 1, 0.36, 1];
 
 const Payment = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,6 +20,7 @@ const Payment = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  const totalPrice = location.state?.totalPrice
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
@@ -160,7 +164,7 @@ const Payment = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Subtotal</span>
-                  <span className="text-zinc-100">₹{totalAmount}</span>
+                  <span className="text-zinc-100">₹{totalPrice}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Shipping</span>
@@ -188,12 +192,12 @@ const Payment = () => {
                 <motion.button
                   type="button"
                   onClick={handlePay}
-                  disabled={submitting || totalAmount === 0}
+                  disabled={submitting || totalPrice === 0}
                   className="flex-1 rounded-xl bg-violet-500 text-white py-3 text-sm font-medium shadow-sm shadow-violet-500/40 hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {submitting ? "Processing…" : `Pay ₹${totalAmount || 0}`}
+                  {submitting ? "Processing…" : `Pay ₹${totalPrice || 0}`}
                 </motion.button>
 
                 <motion.button

@@ -41,7 +41,8 @@ const Profile = () => {
         setId(response.data.id);
         setCart(response.data.cart);
         setAddress(response.data.address);
-
+        console.log(cart);
+        
         // const userDetails = [cart]
       } catch (error) {
         console.error("Error while fetching User Details.", error);
