@@ -1,11 +1,12 @@
-
-
+// import { razorpay } from "../config";
+import { loadScript } from "../config";
+// import Razorpay from "razorpay";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 void motion; // keep lint happy (motion is used via namespace properties like motion.header)
 import { getAllCartItems } from "../api";
-import { payment } from "../api/payment";
+import { orderCreate, verifyPayment } from "../api/payment";
 import { useLocation } from "react-router-dom";
 
 
@@ -19,15 +20,25 @@ const Payment = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0)
 
-  const totalPrice = location.state?.totalPrice
+ 
+  // const totalPrice = location.state?.totalPrice
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await getAllCartItems();
-        const data = response?.data ?? response;
+        // console.log("response of Cart:",response);
+        // const items = response.data.data
+        // console.log((typeof(response.data.data)));
+        // console.log(typeof(items));
+        const data = response?.data?.data?.items || [];
+        // console.log(response?.data?.data?.totalAmount);
+        // console.log(Array.isArray(data));
+        const cartAmount = response?.data?.data?.totalAmount;
+        setTotalAmount(cartAmount) 
         setCart(data);
       } catch (err) {
         setError(err.message || "Unable to load cart items.");
@@ -45,22 +56,34 @@ const Payment = () => {
     return [];
   }, [cart]);
 
-  const totalAmount = useMemo(() => {
-    if (typeof cart?.totalAmount === "number") return cart.totalAmount;
-    if (typeof cart?.total === "number") return cart.total;
-    if (typeof cart === "number") return cart;
-    if (Array.isArray(items)) {
-      return items.reduce((sum, item) => {
-        const value = Number(item?.price ?? item?.amount ?? 0);
-        return sum + (Number.isFinite(value) ? value : 0);
-      }, 0);
-    }
-    return 0;
-  }, [cart, items]);
+  // console.log(items);
+  
+
+  // const totalAmount = useMemo(() => {
+  //   if (typeof cart?.totalAmount === "number") return cart.totalAmount;
+  //   if (typeof cart?.total === "number") return cart.total;
+  //   if (typeof cart === "number") return cart;
+  //   if (Array.isArray(items)) {
+  //     return items.reduce((sum, item) => {
+  //       const value = Number(item?.price ?? item?.amount ?? 0);
+  //       return sum + (Number.isFinite(value) ? value : 0);
+  //     }, 0);
+  //   }
+  //   return 0;
+  // }, [cart, items]);
+// console.log(totalAmount);
+
+// const totalAmount = cart?.data?.totalAmount
 
   const handlePay = async () => {
     setError(null);
-    if (items.length === 0) {
+     const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
+  if (!res) {
+    alert("Razorpay failed");
+    return;
+  }
+    if (cart.length === 0) {
       setError("Your cart is empty. Add items before proceeding.");
       return;
     }
@@ -69,13 +92,47 @@ const Payment = () => {
     try {
       const orderPayload = {
         items,
+        notes: 'Product Shopping',
+        currency: 'INR',
         amount: totalAmount,
       };
 
-      const response = await payment(orderPayload);
+      const response = await orderCreate(orderPayload);
+
       if (response?.status === 200 || response?.status === 201) {
+        const orders = response?.data?.data
+        orders.key = "rzp_test_SWK5XdY6xEx9DU"
+        console.log("Orders::::",orders);
+
+        orders.handler = async function (razorpayResponse) {
+          try {
+            razorpayResponse.razorpay_order_id = orders.id
+            console.log("razorpay handler", razorpayResponse);
+          const verificationResult = await verifyPayment(razorpayResponse)
+            
+            console.log("verifyPayment result", verificationResult?.data);
+            
+        if (verificationResult?.data?.success) {
+          alert("Payment Successfull.")
+          navigate('/Dashboard');
+        }
+        else{
+          alert("Payment Failed.")
+        }
+      }
+    
+     catch(error) {
+        console.error("Payment verification Error", error);
+        alert("Payment verification Failed")
+        
+    }
+  }
         setSuccess("Payment initialized. You will be redirected to Razorpay shortly.");
-        setTimeout(() => navigate("/dashboard"), 2500);
+        // setTimeout(() => {
+            const rzp = new window.Razorpay(orders)
+            rzp.open()              
+        // }, 2000);
+      
       } else {
         setError("Payment could not be initiated. Please try again.");
       }
@@ -164,7 +221,7 @@ const Payment = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Subtotal</span>
-                  <span className="text-zinc-100">₹{totalPrice}</span>
+                  <span className="text-zinc-100">₹{totalAmount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Shipping</span>
@@ -192,12 +249,12 @@ const Payment = () => {
                 <motion.button
                   type="button"
                   onClick={handlePay}
-                  disabled={submitting || totalPrice === 0}
+                  disabled={submitting || totalAmount === 0}
                   className="flex-1 rounded-xl bg-violet-500 text-white py-3 text-sm font-medium shadow-sm shadow-violet-500/40 hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {submitting ? "Processing…" : `Pay ₹${totalPrice || 0}`}
+                  {submitting ? "Processing…" : `Pay ₹${totalAmount || 0}`}
                 </motion.button>
 
                 <motion.button
